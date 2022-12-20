@@ -1,0 +1,15 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: icis-apidoc-configmap
+  namespace: sa-app
+data:
+  SPRING_PROFILES_ACTIVE: dev
+  JAVA_TOOL_OPTIONS: >-
+    -javaagent:/app/libs/elastic-apm-agent-1.31.0.jar
+    -Delastic.apm.service_name=icis-apidoc
+    -Delastic.apm.server_urls=http://apm-server-apm-server.sa-dedi.svc:8200
+    -Delastic.apm.secret_token=990c162bf1d5106be95d1430c6f398df865df7d
+    -Delastic.apm.environment=production
+    -Delastic.apm.application_packages=com.kt.icis
+  

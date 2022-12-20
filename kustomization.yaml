@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- icis-apidoc-route-active.yaml
+- icis-apidoc-route-preview.yaml
+- icis-apidoc-svc-active.yaml
+- icis-apidoc-svc-preview.yaml
+- icis-apidoc-configmap.yaml
+images:
+- name: nexus.dspace.kt.co.kr/icis/icis-apidoc
+  newTag: dev-20220729164512

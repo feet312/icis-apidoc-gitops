@@ -1,0 +1,36 @@
+apiVersion: argoproj.io.v1alpha1
+kind: Rollout
+
+metadata:
+  name: icis-apidoc-rollout
+  namespace: sa-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: icis-apidoc
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: icis-apidoc
+    spec:
+      containers:
+      - name: icis-apidoc
+        image: nexus.dspace.kt.co.kr/icis/icis-apidoc
+        ports:
+        - name: http
+          containerPort: 8080
+        envFrom:
+          - configMapRef:
+              name: icis-apidoc-configmap
+  minReadySeconds: 3
+  revisionHistoryLimit: 3
+  strategy:
+    blueGreen:
+      previewService: icis-apidoc-preview
+      activeService: icis-apidoc-active
+      autoPromotionEnabled: false
+      previewReplicaCount: 1
+      scaleDownDelayseconds: 60

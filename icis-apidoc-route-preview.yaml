@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata: 
+  name: icis-apidoc-route-preview
+  namespace: sa-app
+  labels:
+    app: icis-apidoc
+    app.kubernetes.io/instance: icis-apidoc
+spec:
+  host: icis-apidoc-preview.sa-app.svc
+  to:
+    kind: Service
+    name: icis-apidoc-preview
+    weight: 100
+  port: 
+    targetPort: http
+  wildcardPolicy: None

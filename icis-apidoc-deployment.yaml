@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: icis-apidoc-deployment
+  namespace: sa-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: icis-apidoc
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: icis-apidoc
+    spec:
+      containers:
+      - name: icis-apidoc
+        image: nexus.dspace.kt.co.kr/icis/icis-apidoc
+        ports:
+        - name: http
+          containerPort: 8080
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: dev
+          - name: NODE_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.hostIP
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.Name
+          - name: ZONE
+            valueFrom:
+              configMapKeyRef:
+                name: zone-config
+                key: zone
+          - name: JAVA_TOOL_OPTIONS
+            value: "-javaagent:/app/libs/elastic-apm-agent-1.31.0.jar  -Delastic.apm.service_name=icis-apidoc-${ZONE}  -Delastic.apm.server_urls=http://apm-server-route-sa-dedi.apps.cluster01.cz-dev.icis.co.kr  -Delastic.apm.secret_token=990c162bf1d5106be95d1430c6f398df865df7d  -Delastic.apm.environment=production  -Delastic.apm.application_packages=com.kt.icis"
+          - name: JDK_JAVA_OPTIONS
+            value: "-javaagent:/app/libs/elastic-apm-agent-1.31.0.jar  -Delastic.apm.service_name=icis-apidoc-${ZONE}  -Delastic.apm.server_urls=http://apm-server-route-sa-dedi.apps.cluster01.cz-dev.icis.co.kr  -Delastic.apm.secret_token=990c162bf1d5106be95d1430c6f398df865df7d  -Delastic.apm.environment=production  -Delastic.apm.application_packages=com.kt.icis"
+      hostAliased:
+      - ip: 10.217.137.26
+        hostnames:
+        - apm-server-route-sa-dedi.apps.cluster01.cz-dev.icis.co.kr
+  minReadySeconds: 3
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+
+#  strategy:
+#    blueGreen:
+#      previewService: icis-apidoc-preview
+#      activeService: icis-apidoc-active
+#      autoPromotionEnabled: false
+#      previewReplicaCount: 1
+#      scaleDownDelayseconds: 60
+
+#  strategy:
+#    canary:
+#      maxSurge: 1
+#      maxUnavailabel: 1
